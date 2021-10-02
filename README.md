@@ -1,1 +1,1 @@
-# Houses-4-Rent-Website
+# College Event Management System BackEnd
