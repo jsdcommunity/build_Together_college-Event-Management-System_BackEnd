@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "NODE_ENV=production node index.js",
-    "dev": "NOE_ENV=development nodemon index.js"
+    "start": "SET NODE_ENV=production&node index.js",
+    "dev": "SET NODE_ENV=development&nodemon index.js"
   },
   "author": "Ajmal Asharaf T",
   "license": "ISC",
