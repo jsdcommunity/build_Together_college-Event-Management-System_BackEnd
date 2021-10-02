@@ -4,10 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node app.js",
-    "prod": "SET NODE_ENV=PRODUCTION&node app.js",
-    "dev": "SET NODE_ENV=DEVELOPMENT&nodemon app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "NODE_ENV=production node index.js",
+    "dev": "NOE_ENV=development nodemon index.js"
   },
   "author": "Ajmal Asharaf T",
   "license": "ISC",
@@ -17,6 +15,10 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "mongoose": "^6.0.5",
+    "morgan": "^1.10.0",
     "validator": "^13.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.13"
   }
 }
