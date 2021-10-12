@@ -13,8 +13,14 @@ app.use(cookieParser());
 connectDatabase();
 
 // Import all routes
-const sample = require("./routes/sample");
+const adminRouters = require("./routes/adminRouters");
+const organizerRouters = require("./routes/organizerRouters");
+const outdoorStudentRouters = require("./routes/outdoorStudentRouters");
+const indoorStudentRouters = require("./routes/indoorStudentRouters");
 
-app.use("/api/v1", sample);
+app.use("/api/v1/admin", adminRouters);
+app.use("/api/v1/organizer", organizerRouters);
+app.use("/api/v1/outdoor-student", outdoorStudentRouters);
+app.use("/api/v1/indoor-student", indoorStudentRouters);
 
 module.exports = app;
