@@ -62,6 +62,15 @@ const studentSchema = new Schema({
     required: true,
     select: false,
   },
+  resetPasswdAccess: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  lastResetPasswd: {
+    type: Date,
+    required: false,
+  },
 });
 
 studentSchema.pre("save", async function (next) {
@@ -79,7 +88,7 @@ studentSchema.pre("save", async function (next) {
 });
 
 studentSchema.methods.matchPasswords = async function (password) {
-  return await bcrypt.compare(password,this.password);
+  return await bcrypt.compare(password, this.password);
 };
 
 studentSchema.methods.generateAccessToken = function () {
@@ -110,25 +119,6 @@ studentSchema.methods.generateAccessToken = function () {
         }
       }
     );
-  });
-};
-
-studentSchema.methods.verifyAccessToken = function (token) {
-  return new Promise((resolve, reject) => {
-    jwt.verify(token, JWT_ACCESS_SECRET, (err, decoded) => {
-      if (err) {
-        return reject({
-          name: err.name,
-          message: err.message,
-          stack: err.stack,
-        });
-      }
-      if (decoded) {
-        resolve(decoded);
-      } else {
-        reject({ message: "Token verification failed" });
-      }
-    });
   });
 };
 
@@ -163,25 +153,6 @@ studentSchema.methods.generateActivationToken = function () {
   });
 };
 
-studentSchema.methods.verifyActivationToken = function (token) {
-  return new Promise((resolve, reject) => {
-    jwt.verify(token, JWT_ACTIVATION_SECRET, (err, decoded) => {
-      if (err) {
-        return reject({
-          name: err.name,
-          message: err.message,
-          stack: err.stack,
-        });
-      }
-      if (decoded) {
-        resolve(decoded);
-      } else {
-        reject({ message: "Token verification failed" });
-      }
-    });
-  });
-};
-
 studentSchema.methods.generateResetToken = function () {
   return new Promise((resolve, reject) => {
     jwt.sign(
@@ -213,23 +184,5 @@ studentSchema.methods.generateResetToken = function () {
   });
 };
 
-studentSchema.methods.verifyResetToken = function (token) {
-  return new Promise((resolve, reject) => {
-    jwt.verify(token, JWT_RESET_SECRET, (err, decoded) => {
-      if (err) {
-        return reject({
-          name: err.name,
-          message: err.message,
-          stack: err.stack,
-        });
-      }
-      if (decoded) {
-        resolve(decoded);
-      } else {
-        reject({ message: "Token verification failed" });
-      }
-    });
-  });
-};
 
 module.exports = model("Students", studentSchema);

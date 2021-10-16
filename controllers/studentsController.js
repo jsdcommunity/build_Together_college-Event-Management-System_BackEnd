@@ -11,10 +11,10 @@ module.exports = {
   /**
    * Login for Student with some credential
    * @method POST
-   * @param {*} req 
-   * @param {*} res 
-   * @param {*} next 
-   */ 
+   * @param {*} req
+   * @param {*} res
+   * @param {*} next
+   */
   login: (req, res, next) => {
     const { email, password } = req.body;
     studentHelper
@@ -41,6 +41,52 @@ module.exports = {
       })
       .catch((err) => {
         return next(new ErrorResponse(err.message, 403));
+      });
+  },
+
+  /**
+   * Activation token
+   * @method PUT
+   * @param {*} req
+   * @param {*} res
+   * @param {*} next
+   */
+  activateAccount: (req, res, next) => {
+    const { token, password } = req.body;
+    studentHelper
+      .activateAccount(token, password)
+      .then((result) => {
+        res.status(200).json({
+          success: true,
+          data: result,
+        });
+      })
+      .catch((err) => {
+        return next(
+          new ErrorResponse(err.message, err.statusCode || 400, err.code)
+        );
+      });
+  },
+  /**
+   * Resent Activation token
+   * @method PUT
+   * @param {*} req
+   * @param {*} res
+   * @param {*} next
+   */
+  resentActivationToken: (req, res, next) => {
+    studentHelper
+      .resentActivationToken(req.body.email)
+      .then((result) => {
+        res.status(200).json({
+          success: true,
+          data: result,
+        });
+      })
+      .catch((err) => {
+        return next(
+          new ErrorResponse(err.message, err.statusCode || 400, err.code)
+        );
       });
   },
 };

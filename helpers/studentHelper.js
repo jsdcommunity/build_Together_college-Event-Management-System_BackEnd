@@ -1,4 +1,5 @@
 const Student = require("../models/studentModel");
+const { verifyActivationToken } = require("../utils/verifyJwtToken");
 
 module.exports = {
   /**
@@ -61,7 +62,7 @@ module.exports = {
           // sentMail(email)
           resolve({
             message: "Account created successfully",
-            token
+            token,
           });
         } else {
           reject({
@@ -112,6 +113,95 @@ module.exports = {
       } catch (error) {
         reject({
           message: error.message,
+        });
+      }
+    });
+  },
+  /**
+   * Activate a account by verifing password
+   * @param {String} token
+   * @param {String} password
+   */
+  activateAccount: (token, password) => {
+    return new Promise(async (resolve, reject) => {
+      if (!token || !password) {
+        return reject({
+          message: "Please provide all the required fields",
+        });
+      }
+      try {
+        // decode activation token
+        const decoded = await verifyActivationToken(token);
+
+        // To find a data using the current credentials
+        const student = await Student.findById({
+          _id: decoded.studentId,
+        }).select("+password");
+
+        if (student) {
+          if (student.status === "Inactive") {
+            const isMatch = await student.matchPasswords(password);
+            if (isMatch) {
+              student.status = "Active";
+              student.save();
+              return resolve({ message: "Account Activated succesfully" });
+            } else {
+              reject({ message: "Incorrect Credentials" });
+            }
+          } else {
+            reject({ message: "Not Found", statusCode: 404 });
+          }
+        } else {
+          reject({
+            message: "Incorrect Credentials",
+          });
+        }
+      } catch (error) {
+        reject({
+          message: error.message,
+          code: error.code || error.name,
+        });
+      }
+    });
+  },
+
+  /**
+   * Resent Activate Token
+   * @param {String} email
+   */
+  resentActivationToken: (email) => {
+    return new Promise(async (resolve, reject) => {
+      if (!email) {
+        return reject({
+          message: "Please provide all the required fields",
+        });
+      }
+      try {
+        // To find a data using the current credentials
+        const student = await Student.findOne({ email }).select("+password");
+
+        if (student) {
+          if (student.status === "Inactive") {
+            const token = await student.generateActivationToken();
+            // Activation token sent to email
+            resolve({
+              message: "Activation Token sented to email",
+              token,
+            });
+          } else {
+            reject({
+              message: "Account already active",
+            });
+          }
+        } else {
+          reject({
+            message: "Invaild Email",
+          });
+        }
+      } catch (error) {
+        reject({
+          message: error.message,
+          code: error.code || error.name,
         });
       }
     });
