@@ -4,7 +4,12 @@ const jwt = require("jsonwebtoken");
 
 const JWT_ISSUER = process.env.JWT_ISSUER || "EVENTOGENIC";
 const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || "JHgiuigjewgb";
-const JWT_ACCESS_EXPIRE = process.env.JWT_ACCESS_EXPIRE || 86400000; // 1 day
+const JWT_ACCESS_EXPIRE = process.env.JWT_ACCESS_EXPIRE || "1d";
+const JWT_ACTIVATION_SECRET =
+  process.env.JWT_ACTIVATION_SECRET || "udggkewqgjrb";
+const JWT_ACTIVATION_EXPIRE = process.env.JWT_ACTIVATION_EXPIRE || "5m";
+const JWT_RESET_SECRET = process.env.JWT_RESET_SECRET || "bhjdsghfgbecetw";
+const JWT_RESET_EXPIRE = process.env.JWT_RESET_EXPIRE || "5m";
 
 const studentSchema = new Schema({
   name: {
@@ -69,13 +74,12 @@ studentSchema.pre("save", async function (next) {
     return next();
   } catch (error) {
     console.log(error);
-    return next(error);
-    // return next(new ErrorResponse(error.message, 400));
+    return next(new ErrorResponse(error.message, 400));
   }
 });
 
 studentSchema.methods.matchPasswords = async function (password) {
-  return await bcrypt.compare(password, this.password);
+  return await bcrypt.compare(password,this.password);
 };
 
 studentSchema.methods.generateAccessToken = function () {
@@ -112,6 +116,106 @@ studentSchema.methods.generateAccessToken = function () {
 studentSchema.methods.verifyAccessToken = function (token) {
   return new Promise((resolve, reject) => {
     jwt.verify(token, JWT_ACCESS_SECRET, (err, decoded) => {
+      if (err) {
+        return reject({
+          name: err.name,
+          message: err.message,
+          stack: err.stack,
+        });
+      }
+      if (decoded) {
+        resolve(decoded);
+      } else {
+        reject({ message: "Token verification failed" });
+      }
+    });
+  });
+};
+
+studentSchema.methods.generateActivationToken = function () {
+  return new Promise((resolve, reject) => {
+    jwt.sign(
+      {
+        studentId: this._id,
+      },
+      JWT_ACTIVATION_SECRET,
+      {
+        issuer: JWT_ISSUER,
+        subject: "Activation Token",
+        audience: this.name,
+        expiresIn: JWT_ACTIVATION_EXPIRE,
+      },
+      (err, token) => {
+        if (err) {
+          return reject({
+            name: err.name,
+            message: err.message,
+            stack: err.stack,
+          });
+        }
+        if (token) {
+          resolve(token);
+        } else {
+          reject({ message: "Token Generation failed" });
+        }
+      }
+    );
+  });
+};
+
+studentSchema.methods.verifyActivationToken = function (token) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, JWT_ACTIVATION_SECRET, (err, decoded) => {
+      if (err) {
+        return reject({
+          name: err.name,
+          message: err.message,
+          stack: err.stack,
+        });
+      }
+      if (decoded) {
+        resolve(decoded);
+      } else {
+        reject({ message: "Token verification failed" });
+      }
+    });
+  });
+};
+
+studentSchema.methods.generateResetToken = function () {
+  return new Promise((resolve, reject) => {
+    jwt.sign(
+      {
+        studentId: this._id,
+      },
+      JWT_RESET_SECRET,
+      {
+        issuer: JWT_ISSUER,
+        subject: "Activation Token",
+        audience: this.name,
+        expiresIn: JWT_RESET_EXPIRE,
+      },
+      (err, token) => {
+        if (err) {
+          return reject({
+            name: err.name,
+            message: err.message,
+            stack: err.stack,
+          });
+        }
+        if (token) {
+          resolve(token);
+        } else {
+          reject({ message: "Token Generation failed" });
+        }
+      }
+    );
+  });
+};
+
+studentSchema.methods.verifyResetToken = function (token) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, JWT_RESET_SECRET, (err, decoded) => {
       if (err) {
         return reject({
           name: err.name,

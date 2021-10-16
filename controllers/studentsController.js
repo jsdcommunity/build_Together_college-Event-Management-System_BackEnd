@@ -1,4 +1,8 @@
 const studentHelper = require("../helpers/studentHelper");
+const ErrorResponse = require("../classes/errorResponse");
+
+const NODE_ENV = process.env.NODE_ENV || "development";
+const ACCESS_TOKEN_EXPIRE = process.env.ACCESS_TOKEN_EXPIRE || 86400000; // 1 day
 
 module.exports = {
   student: (req, res, next) => {
@@ -9,17 +13,27 @@ module.exports = {
     studentHelper
       .login(email, password)
       .then((result) => {
-        res.status(201).json({
+        res.cookie("AccessToken", result.token, {
+          httpOnly: true,
+          secure: NODE_ENV === "production" ? true : false,
+          expires: new Date(
+            new Date().getTime() + parseInt(ACCESS_TOKEN_EXPIRE)
+          ),
+          sameSite: "strict",
+        });
+        res.cookie("AccessSession", true, {
+          httpOnly: true,
+          expires: new Date(
+            new Date().getTime() + parseInt(ACCESS_TOKEN_EXPIRE)
+          ),
+        });
+        res.status(200).json({
           success: true,
           data: result,
         });
       })
       .catch((err) => {
-        // return next(new ErrorResponse(err.message, 403));
-        res.status(400).json({
-          success: false,
-          errorMsg: err.message,
-        });
+        return next(new ErrorResponse(err.message, 403));
       });
   },
 };

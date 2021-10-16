@@ -15,17 +15,13 @@ module.exports = {
     studentHelper
       .signup(req.body)
       .then((result) => {
-        res.status(200).json({
+        res.status(201).json({
           success: true,
           data: result,
         });
       })
       .catch((err) => {
-        // return next(new ErrorResponse(err.message, 400));
-        res.status(400).json({
-          success: false,
-          errorMsg: err.message,
-        });
+        return next(new ErrorResponse(err.message, 400));
       });
   },
 };

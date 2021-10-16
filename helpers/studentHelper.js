@@ -88,16 +88,14 @@ module.exports = {
         }
 
         // To find a data using the current credentials
-        const studentFound = await Student.find({ email }).select("+password");
+        const student = await Student.findOne({ email }).select("+password");
 
-        if (studentFound.length >= 0) {
-          const student = studentFound[0];
-
+        if (student) {
           if (student.status === "Active") {
-            console.log(student.password);
-            const isMatch = await Student.matchPasswords(student.password);
+            const isMatch = await student.matchPasswords(password);
             if (isMatch) {
-              resolve({ message: "Login Successfully", token: "67890" });
+              const token = await student.generateAccessToken();
+              resolve({ message: "Login Successfully", token });
             } else {
               reject({ message: "Incorrect Credentials" });
             }
