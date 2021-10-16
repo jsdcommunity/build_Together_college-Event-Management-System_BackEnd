@@ -13,17 +13,17 @@ const errorHandler = (err, req, res, next) => {
   }
 
   if (err.code === "EAI_AGAIN") {
-    const message = "Check your internet connected properly";
+    const message = "Check your internet properly";
     error = new ErrorResponse(message, 400);
   }
 
   if (err.code === "TokenExpiredError") {
-    const message = "Your link expired so resent ur link";
+    const message = "Your link expired";
     error = new ErrorResponse(message, 400);
   }
 
   if (err.code === "JsonWebTokenError") {
-    const message = "Plz check valid link";
+    const message = "Invalid Link";
     error = new ErrorResponse(message, 400);
   }
 

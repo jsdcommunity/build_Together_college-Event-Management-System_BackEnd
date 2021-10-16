@@ -2,13 +2,12 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  student,
   login,
   activateAccount,
-  resentActivationToken
+  resentActivationToken,
 } = require("../controllers/studentsController");
 
-router.get("/", student);
+// router.get("/", student);
 router.post("/login", login);
 router.put("/activate-account", activateAccount);
 router.put("/resent-activation-token", resentActivationToken);
