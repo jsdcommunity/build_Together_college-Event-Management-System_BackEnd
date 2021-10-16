@@ -37,9 +37,8 @@ module.exports = {
 
         // To find a data using the current credentials
         const studentFound = await Student.find({
-          $and: [{ $or: [{ email }, { mobile }, {universityId}] }],
+          $and: [{ $or: [{ email }, { mobile }, { universityId }] }],
         });
-
 
         if (studentFound.length <= 0) {
           const student = new Student({
@@ -69,7 +68,50 @@ module.exports = {
         }
       } catch (error) {
         reject({
-          message: error.message || "Internal server error",
+          message: error.message,
+        });
+      }
+    });
+  },
+  /**
+   * Create a account with some credentials for students
+   * @param {String} email
+   * @param {String} password
+   **/
+  login: (email, password) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (!email || !password) {
+          return reject({
+            message: "Please provide all the required fields",
+          });
+        }
+
+        // To find a data using the current credentials
+        const studentFound = await Student.find({ email }).select("+password");
+
+        if (studentFound.length >= 0) {
+          const student = studentFound[0];
+
+          if (student.status === "Active") {
+            console.log(student.password);
+            const isMatch = await Student.matchPasswords(student.password);
+            if (isMatch) {
+              resolve({ message: "Login Successfully", token: "67890" });
+            } else {
+              reject({ message: "Incorrect Credentials" });
+            }
+          } else {
+            reject({ message: "Account is Deactivated" });
+          }
+        } else {
+          reject({
+            message: "Incorrect Credentials",
+          });
+        }
+      } catch (error) {
+        reject({
+          message: error.message,
         });
       }
     });

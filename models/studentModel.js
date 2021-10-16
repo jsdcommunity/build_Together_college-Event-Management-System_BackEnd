@@ -1,5 +1,10 @@
 const { Schema, model } = require("mongoose");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+const JWT_ISSUER = process.env.JWT_ISSUER || "EVENTOGENIC";
+const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || "JHgiuigjewgb";
+const JWT_ACCESS_EXPIRE = process.env.JWT_ACCESS_EXPIRE || 86400000; // 1 day
 
 const studentSchema = new Schema({
   name: {
@@ -65,11 +70,62 @@ studentSchema.pre("save", async function (next) {
   } catch (error) {
     console.log(error);
     return next(error);
+    // return next(new ErrorResponse(error.message, 400));
   }
 });
 
-studentSchema.methods.matchPassword = (password) => {
-  return bcrypt.compare(password, this.password);
+studentSchema.methods.matchPasswords = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
+
+studentSchema.methods.generateAccessToken = function () {
+  return new Promise((resolve, reject) => {
+    jwt.sign(
+      {
+        studentId: this._id,
+      },
+      JWT_ACCESS_SECRET,
+      {
+        issuer: JWT_ISSUER,
+        subject: "Access Token",
+        audience: this.name,
+        expiresIn: JWT_ACCESS_EXPIRE,
+      },
+      (err, token) => {
+        if (err) {
+          return reject({
+            name: err.name,
+            message: err.message,
+            stack: err.stack,
+          });
+        }
+        if (token) {
+          resolve(token);
+        } else {
+          reject({ message: "Token Generation failed" });
+        }
+      }
+    );
+  });
+};
+
+studentSchema.methods.verifyAccessToken = function (token) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, JWT_ACCESS_SECRET, (err, decoded) => {
+      if (err) {
+        return reject({
+          name: err.name,
+          message: err.message,
+          stack: err.stack,
+        });
+      }
+      if (decoded) {
+        resolve(decoded);
+      } else {
+        reject({ message: "Token verification failed" });
+      }
+    });
+  });
 };
 
 module.exports = model("Students", studentSchema);

@@ -11,7 +11,7 @@ module.exports = {
     });
   },
   signup: (req, res, next) => {
-    req.body.role = "Outdoor Student"
+    req.body.role = "Outdoor Student";
     studentHelper
       .signup(req.body)
       .then((result) => {
@@ -21,6 +21,7 @@ module.exports = {
         });
       })
       .catch((err) => {
+        // return next(new ErrorResponse(err.message, 400));
         res.status(400).json({
           success: false,
           errorMsg: err.message,
