@@ -56,10 +56,12 @@ module.exports = {
             student.graduationYear = graduationYear;
           }
           await student.save();
+          const token = await student.generateActivationToken();
           // Sent Activation token to email address
           // sentMail(email)
           resolve({
             message: "Account created successfully",
+            token
           });
         } else {
           reject({

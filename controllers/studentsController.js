@@ -8,6 +8,13 @@ module.exports = {
   student: (req, res, next) => {
     res.status(200).send("Hii I'm Student's Route");
   },
+  /**
+   * Login for Student with some credential
+   * @method POST
+   * @param {*} req 
+   * @param {*} res 
+   * @param {*} next 
+   */ 
   login: (req, res, next) => {
     const { email, password } = req.body;
     studentHelper
