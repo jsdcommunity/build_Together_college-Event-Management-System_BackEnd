@@ -1,13 +1,18 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
-const connectDatabase = () =>{
-    mongoose.connect(process.env.DB_LOCAL_URI,{
-        useNewUrlParser:true,
-        useUnifiedTopology:true,
-        // useCreateIndex:true
-    }).then(con =>{
-        console.log(`Mongodb connected with HOST ${con.connection.host}`)
+const DB_URI =
+  process.env.DB_LOCAL_URI || "mongodb://localhost:27017/Eventogenic";
+
+const connectDatabase = () => {
+  mongoose
+    .connect(DB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      // useCreateIndex:true
     })
-}
+    .then((con) => {
+      console.log(`Mongodb connected with HOST ${con.connection.host}`);
+    });
+};
 
-module.exports=connectDatabase
+module.exports = connectDatabase;

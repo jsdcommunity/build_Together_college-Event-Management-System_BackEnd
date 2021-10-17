@@ -2,7 +2,8 @@ const http = require("http"),
   app = require("./app");
 server = http.createServer(app);
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3004;
+const NODE_ENV = process.env.NODE_ENV || "development";
 
 app.set("port", PORT);
 
@@ -42,9 +43,7 @@ function onError(error) {
  */
 
 function onListen() {
-  console.log(
-    `Server listening on port ${PORT} in ${process.env.NODE_ENV} mode`
-  );
+  console.log(`Server listening on port ${PORT} in ${NODE_ENV} mode`);
 }
 
 // handling uncaughtException and unhandledRejection
