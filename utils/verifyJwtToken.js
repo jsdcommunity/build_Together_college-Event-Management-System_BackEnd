@@ -1,9 +1,8 @@
 const jwt = require("jsonwebtoken");
+const config = require("../config/default");
 
-const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || "JHgiuigjewgb";
-const JWT_ACTIVATION_SECRET =
-  process.env.JWT_ACTIVATION_SECRET || "udggkewqgjrb";
-const JWT_RESET_SECRET = process.env.JWT_RESET_SECRET || "bhjdsghfgbecetw";
+const { JWT_ACCESS_SECRET, JWT_ACTIVATION_SECRET, JWT_RESET_SECRET } =
+  config.JWT;
 
 const verifyAccessToken = (token) => {
   return new Promise((resolve, reject) => {

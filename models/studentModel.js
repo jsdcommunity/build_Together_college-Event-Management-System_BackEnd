@@ -1,15 +1,17 @@
 const { Schema, model } = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const config = require("../config/default");
 
-const JWT_ISSUER = process.env.JWT_ISSUER || "EVENTOGENIC";
-const JWT_ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || "JHgiuigjewgb";
-const JWT_ACCESS_EXPIRE = process.env.JWT_ACCESS_EXPIRE || "1d";
-const JWT_ACTIVATION_SECRET =
-  process.env.JWT_ACTIVATION_SECRET || "udggkewqgjrb";
-const JWT_ACTIVATION_EXPIRE = process.env.JWT_ACTIVATION_EXPIRE || "5m";
-const JWT_RESET_SECRET = process.env.JWT_RESET_SECRET || "bhjdsghfgbecetw";
-const JWT_RESET_EXPIRE = process.env.JWT_RESET_EXPIRE || "5m";
+const {
+  JWT_ISSUER,
+  JWT_ACCESS_EXPIRE,
+  JWT_ACCESS_SECRET,
+  JWT_RESET_SECRET,
+  JWT_RESET_EXPIRE,
+  JWT_ACTIVATION_SECRET,
+  JWT_ACTIVATION_EXPIRE,
+} = config.JWT;
 
 const studentSchema = new Schema({
   name: {
@@ -23,13 +25,14 @@ const studentSchema = new Schema({
     unique: true,
     // validate:[isEmail,"Invalid Email"]
   },
-  status: {
-    type: String,
-    default: "Inactive",
+  verified: {
+    type: Boolean,
+    default: false,
   },
   role: {
     type: String,
     required: true,
+    default: "Outdoor Student",
   },
   universityId: {
     type: String,
@@ -183,6 +186,5 @@ studentSchema.methods.generateResetToken = function () {
     );
   });
 };
-
 
 module.exports = model("Students", studentSchema);

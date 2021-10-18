@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
+const config = require("./default");
 
-const DB_URI =
-  process.env.DB_LOCAL_URI || "mongodb://localhost:27017/Eventogenic";
+const { DB_URI } = config.MONGO;
 
 const connectDatabase = () => {
   mongoose

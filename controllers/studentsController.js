@@ -1,8 +1,8 @@
 const studentHelper = require("../helpers/studentHelper");
 const ErrorResponse = require("../classes/errorResponse");
+const config = require("../config/default");
 
-const NODE_ENV = process.env.NODE_ENV || "development";
-const ACCESS_TOKEN_EXPIRE = process.env.ACCESS_TOKEN_EXPIRE || 86400000; // 1 day
+const { NODE_ENV, ACCESS_TOKEN_EXPIRE } = config.SERVER;
 
 /**
  * Login for Student with some credential
@@ -37,8 +37,29 @@ const login = (req, res, next) => {
 };
 
 /**
+ * Signup for Student with some credential
+ * @method POST
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
+const signup = (req, res, next) => {
+  studentHelper
+    .signup(req.body)
+    .then((result) => {
+      res.status(201).json({
+        success: true,
+        data: result,
+      });
+    })
+    .catch((err) => {
+      return next(new ErrorResponse(err.message, 400));
+    });
+};
+
+/**
  * Activation token
- * @method PUT
+ * @method PATCH
  * @param {*} req
  * @param {*} res
  * @param {*} next
@@ -61,15 +82,15 @@ const activateAccount = (req, res, next) => {
 };
 
 /**
- * Resent Activation token
- * @method PUT
+ * Forget password for Student
+ * @method PATCH
  * @param {*} req
  * @param {*} res
  * @param {*} next
  */
-const resentActivationToken = (req, res, next) => {
+const forgetPassword = (req, res, next) => {
   studentHelper
-    .resentActivationToken(req.body.email)
+    .forgetPassword(req.body.email)
     .then((result) => {
       res.status(200).json({
         success: true,
@@ -83,4 +104,51 @@ const resentActivationToken = (req, res, next) => {
     });
 };
 
-module.exports = { login, activateAccount, resentActivationToken };
+/**
+ * Reset password for student
+ * @method PATCH
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
+const resetPassword = (req, res, next) => {
+  const { token, password } = req.body;
+  studentHelper
+    .resetPassword(token, password)
+    .then((result) => {
+      res.status(200).json({
+        success: true,
+        data: result,
+      });
+    })
+    .catch((err) => {
+      return next(
+        new ErrorResponse(err.message, err.statusCode || 400, err.code)
+      );
+    });
+};
+
+/**
+ * Logout for student
+ * @method GET
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
+const logout = (req, res, next) => {
+  res.clearCookie("AccessToken");
+  res.clearCookie("AccessSession");
+  res.status(200).json({
+    success: true,
+    message: "Logout succesfully",
+  });
+};
+
+module.exports = {
+  login,
+  signup,
+  activateAccount,
+  forgetPassword,
+  resetPassword,
+  logout,
+};
