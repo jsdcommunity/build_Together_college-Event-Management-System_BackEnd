@@ -12,7 +12,7 @@ const errorHandler = (err, req, res, next) => {
     error = new ErrorResponse(message, 400);
   }
 
-  if (err.code === "EAI_AGAIN") {
+  if (err.code === "EAI_AGAIN" || err.code === "ENOTFOUND") {
     const message = "Check your internet properly";
     error = new ErrorResponse(message, 400);
   }
