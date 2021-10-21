@@ -8,10 +8,8 @@ const website_link =
   "https://github.com/jsdcommunity/build_Together_college-Event-Management-System_BackEnd";
 
 /**
- *
- * @param {String} to
- * @param {String} sub
- * @param {String} output
+ * Send mail to email
+ * @param {Object} data - email, userName, URL, type
  * @returns {Boolean}
  */
 const sendMail = ({ email, userName, URL, type }) => {
@@ -56,7 +54,7 @@ const sendMail = ({ email, userName, URL, type }) => {
 
     sgMail
       .send(msg)
-      .then(() => {
+      .then((res) => {
         resolve(true);
       })
       .catch((error) => {

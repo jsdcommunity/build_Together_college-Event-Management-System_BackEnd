@@ -32,7 +32,9 @@ const login = (req, res, next) => {
       });
     })
     .catch((err) => {
-      return next(new ErrorResponse(err.message, 403));
+      return next(
+        new ErrorResponse(err.message, err.statusCode || 400, err.code)
+      );
     });
 };
 
@@ -53,7 +55,9 @@ const signup = (req, res, next) => {
       });
     })
     .catch((err) => {
-      return next(new ErrorResponse(err.message, 400));
+      return next(
+        new ErrorResponse(err.message, err.statusCode || 400, err.code)
+      );
     });
 };
 
@@ -136,12 +140,18 @@ const resetPassword = (req, res, next) => {
  * @param {*} next
  */
 const logout = (req, res, next) => {
-  res.clearCookie("AccessToken");
-  res.clearCookie("AccessSession");
-  res.status(200).json({
-    success: true,
-    message: "Logout succesfully",
-  });
+  try {
+    res.clearCookie("AccessToken");
+    res.clearCookie("AccessSession");
+    res.status(200).json({
+      success: true,
+      message: "Logout succesfully",
+    });
+  } catch (err) {
+    return next(
+      new ErrorResponse(err.message, err.statusCode || 400, err.code)
+    );
+  }
 };
 
 module.exports = {
