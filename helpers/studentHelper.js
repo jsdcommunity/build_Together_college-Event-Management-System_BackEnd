@@ -26,21 +26,20 @@ const signup = (data) => {
     password,
   } = data;
   return new Promise(async (resolve, reject) => {
+    if (
+      !name ||
+      !email ||
+      !semester ||
+      !mobile ||
+      !password ||
+      !universityId ||
+      !collegeName
+    ) {
+      return reject({
+        message: "Please provide all the required fields",
+      });
+    }
     try {
-      if (
-        !name ||
-        !email ||
-        !semester ||
-        !mobile ||
-        !password ||
-        !universityId ||
-        !collegeName
-      ) {
-        return reject({
-          message: "Please provide all the required fields",
-        });
-      }
-
       // To find a data using the current credentials
       const studentFound = await Student.find({
         $and: [{ $or: [{ email }, { mobile }, { universityId }] }],
@@ -101,28 +100,20 @@ const signup = (data) => {
  **/
 const login = (email, password) => {
   return new Promise(async (resolve, reject) => {
+    if (!email || !password) {
+      return reject({
+        message: "Please provide all the required fields",
+      });
+    }
     try {
-      if (!email || !password) {
-        return reject({
-          message: "Please provide all the required fields",
-        });
-      }
-
       // To find a data using the current credentials
       const student = await Student.findOne({ email }).select("+password");
+      const isMatch = student ? await student.matchPasswords(password) : null;
 
-      if (student) {
+      if (student && isMatch) {
         if (student.verified) {
-          const isMatch = await student.matchPasswords(password);
-          if (isMatch) {
-            const token = await student.generateAccessToken();
-            resolve({ message: "Login Successfully", token });
-          } else {
-            reject({
-              message: "Incorrect email or password",
-              statusCode: 401,
-            });
-          }
+          const token = await student.generateAccessToken();
+          resolve({ message: "Login Successfully", token });
         } else {
           const token = await student.generateActivationToken();
           data = {
